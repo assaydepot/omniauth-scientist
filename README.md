@@ -12,13 +12,13 @@ end
 
 ```ruby
 provider :scientist, ENV['SCIENTIST_ID'], ENV['SCIENTIST_SECRET'],
-    {
-      :client_options => {
-        :site => 'https://<YOURSUBDOMAIN>.scientist.com',
-        :authorize_url => 'https://<YOURSUBDOMAIN>.scientist.com/oauth/authorize',
-        :token_url => 'https://<YOURSUBDOMAIN>.scientist.com/oauth/token'
-      }
+  {
+    client_options: {
+      site: 'https://<YOURSUBDOMAIN>.scientist.com',
+      authorize_url: 'https://<YOURSUBDOMAIN>.scientist.com/oauth/authorize',
+      token_url: 'https://<YOURSUBDOMAIN>.scientist.com/oauth/token'
     }
+  }
 ```
 
 ## License

@@ -23,35 +23,43 @@ module OmniAuth
         end
       end
 
-      uid { raw_info['id'].to_s }
+      uid { user_attribute('id') }
 
       info do
         {
-          'nickname' => raw_info['login'],
+          'uid' => uid,
           'email' => email,
-          'name' => raw_info['name'],
-          'image' => raw_info['avatar_url'],
+          'name' => "#{user_attribute('first_name')} #{user_attribute('last_name')}",
+          'first_name' => user_attribute('first_name'),
+          'last_name' => user_attribute('last_name'),
+          'title' => user_attribute('title'),
+          'company' => user_attribute('company'),
+          'site' => user_attribute('site')
         }
       end
 
       extra do
-        {:raw_info => raw_info, :all_emails => emails}
+        { raw_info: raw_info }
       end
 
       def raw_info
-        access_token.options[:mode] = :query
-        @raw_info ||= access_token.get('user').parsed
+        access_token.options[:mode] = :header
+        @raw_info ||= { 'user' => access_token['user'] }
       end
 
       def email
-        raw_info['email']
+        user_attribute('email')
       end
 
       def callback_url
         full_host + script_name + callback_path
       end
+
+      protected
+
+      def user_attribute(attribute)
+        raw_info['user'][attribute] if raw_info['user']
+      end
     end
   end
 end
-
-OmniAuth.config.add_camelization 'scientist', 'Scientist'
