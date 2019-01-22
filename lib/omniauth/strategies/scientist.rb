@@ -27,6 +27,7 @@ module OmniAuth
 
       info do
         {
+          'provider' => 'scientist',
           'uid' => uid,
           'email' => email,
           'name' => "#{user_attribute('first_name')} #{user_attribute('last_name')}",
