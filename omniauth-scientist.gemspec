@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = OmniAuth::Scientist::VERSION
 
-  gem.add_dependency 'omniauth', '~> 1.9'
+  gem.add_dependency 'omniauth', '>= 1.9', '< 3.0'
   gem.add_dependency 'omniauth-oauth2', '>= 1.6.0', '< 2.0'
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'rack-test'
