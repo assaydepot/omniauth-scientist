@@ -4,9 +4,9 @@ module OmniAuth
   module Strategies
     class Scientist < OmniAuth::Strategies::OAuth2
       option :client_options, {
-        :site => 'https://app.scientist.com',
-        :authorize_url => 'https://app.scientist.com/oauth/authorize',
-        :token_url => 'https://app.scientist.com/oauth/token'
+        site: 'https://app.scientist.com',
+        authorize_url: 'https://app.scientist.com/oauth/authorize',
+        token_url: 'https://app.scientist.com/oauth/token'
       }
 
       def request_phase
@@ -15,7 +15,7 @@ module OmniAuth
 
       def authorize_params
         super.tap do |params|
-          %w[scope client_options].each do |v|
+          %w[client_options].each do |v|
             if request.params[v]
               params[v.to_sym] = request.params[v]
             end
@@ -23,19 +23,21 @@ module OmniAuth
         end
       end
 
-      uid { user_attribute('id') }
+      uid {
+        raw_info['id'].to_s
+      }
 
       info do
         {
           'provider' => 'scientist',
           'uid' => uid,
           'email' => email,
-          'name' => "#{user_attribute('first_name')} #{user_attribute('last_name')}",
-          'first_name' => user_attribute('first_name'),
-          'last_name' => user_attribute('last_name'),
-          'title' => user_attribute('title'),
-          'company' => user_attribute('company'),
-          'site' => user_attribute('site')
+          'name' => "#{raw_info['first_name']} #{raw_info['last_name']}",
+          'first_name' => raw_info['first_name'],
+          'last_name' => raw_info['last_name'],
+          'title' => raw_info['title'],
+          'company' => raw_info['company'],
+          'site' => raw_info['site']
         }
       end
 
@@ -45,21 +47,15 @@ module OmniAuth
 
       def raw_info
         access_token.options[:mode] = :header
-        @raw_info ||= { 'user' => access_token['user'] }
+        @raw_info ||= access_token["user"]
       end
 
       def email
-        user_attribute('email')
+        raw_info['email']
       end
 
       def callback_url
-        full_host + script_name + callback_path
-      end
-
-      protected
-
-      def user_attribute(attribute)
-        raw_info['user'][attribute] if raw_info['user']
+        full_host + callback_path
       end
     end
   end
