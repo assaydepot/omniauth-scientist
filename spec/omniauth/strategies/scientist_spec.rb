@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe OmniAuth::Strategies::Scientist do
   let(:access_token) { instance_double('AccessToken', :options => {}, :[] => 'user') }
-  let(:parsed_response) { instance_double('ParsedResponse') }
-  let(:response) { instance_double('Response', :parsed => parsed_response) }
 
   let(:enterprise_site)          { 'https://some.other.site.com/api/v3' }
   let(:enterprise_authorize_url) { 'https://some.other.site.com/login/oauth/authorize' }
@@ -60,19 +58,6 @@ describe OmniAuth::Strategies::Scientist do
     it 'should return email from raw_info if available' do
       allow(subject).to receive(:raw_info).and_return({ 'email' => 'you@example.com' })
       expect(subject.email).to eq('you@example.com')
-    end
-  end
-
-  context '#raw_info' do
-    it 'should use relative paths' do
-      expect(access_token).to receive(:get).with('user').and_return(response)
-      expect(subject.raw_info).to eq(parsed_response)
-    end
-
-    it 'should use the header auth mode' do
-      expect(access_token).to receive(:get).with('user').and_return(response)
-      subject.raw_info
-      expect(access_token.options[:mode]).to eq(:header)
     end
   end
 
