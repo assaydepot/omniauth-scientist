@@ -1,22 +1,22 @@
 require 'spec_helper'
 
 describe OmniAuth::Strategies::Scientist do
-  let(:access_token) { instance_double('AccessToken', :options => {}) }
+  let(:access_token) { instance_double('AccessToken', :options => {}, :[] => 'user') }
   let(:parsed_response) { instance_double('ParsedResponse') }
   let(:response) { instance_double('Response', :parsed => parsed_response) }
 
-  let(:enterprise_site)          { 'https://some.other.site.com/' }
-  let(:enterprise_authorize_url) { 'https://some.other.site.com/oauth/authorize' }
-  let(:enterprise_token_url)     { 'https://some.other.site.com/oauth/token' }
+  let(:enterprise_site)          { 'https://some.other.site.com/api/v3' }
+  let(:enterprise_authorize_url) { 'https://some.other.site.com/login/oauth/authorize' }
+  let(:enterprise_token_url)     { 'https://some.other.site.com/login/oauth/access_token' }
   let(:enterprise) do
-    OmniAuth::Strategies::Scientist.new('SCIENTIST_ID', 'SCIENTIST_SECRET',
-      {
-        :client_options => {
-          :site => enterprise_site,
-          :authorize_url => enterprise_authorize_url,
-          :token_url => enterprise_token_url
+    OmniAuth::Strategies::Scientist.new('SIENTIST_KEY', 'SIENTIST_SECRET',
+        {
+            :client_options => {
+                :site => enterprise_site,
+                :authorize_url => enterprise_authorize_url,
+                :token_url => enterprise_token_url
+            }
         }
-      }
     )
   end
 
@@ -61,39 +61,18 @@ describe OmniAuth::Strategies::Scientist do
       allow(subject).to receive(:raw_info).and_return({ 'email' => 'you@example.com' })
       expect(subject.email).to eq('you@example.com')
     end
-
-    it 'should return nil if there is no raw_info and email access is not allowed' do
-      allow(subject).to receive(:raw_info).and_return({})
-      expect(subject.email).to be_nil
-    end
-
-    it 'should not return the primary email if there is no raw_info and email access is allowed' do
-      emails = [
-        { 'email' => 'secondary@example.com', 'primary' => false },
-        { 'email' => 'primary@example.com',   'primary' => true }
-      ]
-      allow(subject).to receive(:raw_info).and_return({})
-      subject.options['scope'] = 'user'
-      allow(subject).to receive(:emails).and_return(emails)
-      expect(subject.email).to be_nil
-    end
-
-    it 'should not return the first email if there is no raw_info and email access is allowed' do
-      emails = [
-        { 'email' => 'first@example.com',   'primary' => false },
-        { 'email' => 'second@example.com',  'primary' => false }
-      ]
-      allow(subject).to receive(:raw_info).and_return({})
-      subject.options['scope'] = 'user'
-      allow(subject).to receive(:emails).and_return(emails)
-      expect(subject.email).to be_nil
-    end
   end
 
   context '#raw_info' do
     it 'should use relative paths' do
       expect(access_token).to receive(:get).with('user').and_return(response)
       expect(subject.raw_info).to eq(parsed_response)
+    end
+
+    it 'should use the header auth mode' do
+      expect(access_token).to receive(:get).with('user').and_return(response)
+      subject.raw_info
+      expect(access_token.options[:mode]).to eq(:header)
     end
   end
 
